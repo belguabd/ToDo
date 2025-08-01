@@ -1,9 +1,12 @@
 <?php
+// app/Services/TaskService.php
 namespace App\Services;
 
 use App\Models\Task;
 use App\Repositories\TaskRepository;
 use App\Events\TaskCreated;
+use App\Events\TaskUpdated;
+use App\Events\TaskDeleted;
 use Illuminate\Database\Eloquent\Collection;
 
 class TaskService
@@ -30,9 +33,7 @@ class TaskService
         $data['user_id'] = $userId;
         $task = $this->taskRepository->create($data);
         
-        // Broadcast event for real-time notifications
-        event(new TaskCreated($task));
-        
+        broadcast(new TaskCreated($task));
         return $task;
     }
 
@@ -45,7 +46,9 @@ class TaskService
         }
 
         $this->taskRepository->update($task, $data);
-        return $task->fresh();
+        $updatedTask = $task->fresh();
+        
+        return $updatedTask;
     }
 
     public function deleteTask(int $id, int $userId): bool
@@ -56,6 +59,8 @@ class TaskService
             return false;
         }
 
-        return $this->taskRepository->delete($task);
+        $taskTitle = $task->title;
+        $deleted = $this->taskRepository->delete($task);    
+        return $deleted;
     }
 }

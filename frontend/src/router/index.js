@@ -37,6 +37,13 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/tasks/:id/edit',
+    name: 'TaskEdit',
+    component: () => import('@/views/EditTask.vue'),
+    meta: { requiresAuth: true },
+    props: true
+  },
+  {
     path: '/tasks/:id',
     name: 'TaskDetail',
     component: () => import('@/views/TaskDetail.vue'),
@@ -48,19 +55,19 @@ const routes = [
     component: () => import('@/views/Notifications.vue'),
     meta: { requiresAuth: true }
   },
-  
-//   {
-//     path: '/profile',
-//     name: 'Profile',
-//     component: () => import('@/views/Profile.vue'),
-//     meta: { requiresAuth: true }
-//   },
-//   {
-//     path: '/settings',
-//     name: 'Settings',
-//     component: () => import('@/views/Settings.vue'),
-//     meta: { requiresAuth: true }
-//   }
+
+  //   {
+  //     path: '/profile',
+  //     name: 'Profile',
+  //     component: () => import('@/views/Profile.vue'),
+  //     meta: { requiresAuth: true }
+  //   },
+  //   {
+  //     path: '/settings',
+  //     name: 'Settings',
+  //     component: () => import('@/views/Settings.vue'),
+  //     meta: { requiresAuth: true }
+  //   }
 ]
 
 const router = createRouter({
@@ -68,13 +75,17 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  
+
+
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login')
+    next({
+      name: 'Login',
+      query: { redirect: to.fullPath }
+    })
   } else if (to.meta.guest && authStore.isAuthenticated) {
-    next('/dashboard')
+    next({ name: 'Dashboard' })
   } else {
     next()
   }

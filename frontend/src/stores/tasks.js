@@ -9,8 +9,9 @@ export const useTasksStore = defineStore('tasks', {
   }),
 
   getters: {
-    completedTasks: (state) => state.tasks.filter(task => task.completed),
-    pendingTasks: (state) => state.tasks.filter(task => !task.completed),
+    // Fixed: Check 'completed' property instead of 'status'
+    completedTasks: (state) => state.tasks.filter(task => task.completed === true),
+    pendingTasks: (state) => state.tasks.filter(task => task.completed === false || task.completed === null),
     tasksCount: (state) => state.tasks.length,
   },
 
@@ -19,9 +20,11 @@ export const useTasksStore = defineStore('tasks', {
       try {
         this.loading = true
         this.error = null
-        
+
         const response = await api.get('/tasks')
-        this.tasks = response.data.data || response.data
+        
+        // Handle different response structures
+        this.tasks = response.data.tasks || response.data.data || response.data
         
         return this.tasks
       } catch (error) {
@@ -35,7 +38,8 @@ export const useTasksStore = defineStore('tasks', {
     async getTask(id) {
       try {
         const response = await api.get(`/tasks/${id}`)
-        return response.data.data || response.data
+        // Handle different response structures
+        return response.data.task || response.data.data || response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch task'
         throw error
@@ -46,12 +50,21 @@ export const useTasksStore = defineStore('tasks', {
       try {
         this.loading = true
         this.error = null
+
+        console.log("taskData : ---->", taskData)
         
+
         const response = await api.post('/tasks', taskData)
-        const newTask = response.data.data || response.data
+
+
         
+        console.log("response : ", response)
+
+        // Handle different response structures
+        const newTask = response.data.task || response.data.data || response.data
+
         this.tasks.unshift(newTask)
-        
+
         return newTask
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to create task'
@@ -65,15 +78,15 @@ export const useTasksStore = defineStore('tasks', {
       try {
         this.loading = true
         this.error = null
-        
+
         const response = await api.put(`/tasks/${id}`, taskData)
-        const updatedTask = response.data.data || response.data
-        
+        const updatedTask = response.data.task || response.data.data || response.data
+
         const index = this.tasks.findIndex(task => task.id === id)
         if (index !== -1) {
           this.tasks[index] = updatedTask
         }
-        
+
         return updatedTask
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to update task'
@@ -87,11 +100,11 @@ export const useTasksStore = defineStore('tasks', {
       try {
         this.loading = true
         this.error = null
-        
+
         await api.delete(`/tasks/${id}`)
-        
+
         this.tasks = this.tasks.filter(task => task.id !== id)
-        
+
         return true
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to delete task'
@@ -104,10 +117,15 @@ export const useTasksStore = defineStore('tasks', {
     async toggleTaskStatus(id) {
       const task = this.tasks.find(t => t.id === id)
       if (task) {
-        return await this.updateTask(id, {
+        // Send the completed status and convert to backend status format
+        const updateData = {
           ...task,
-          completed: !task.completed
-        })
+          completed: !task.completed,
+          // Map completed to status for backend compatibility
+          status: !task.completed ? 'completed' : 'pending'
+        }
+        
+        return await this.updateTask(id, updateData)
       }
     },
 

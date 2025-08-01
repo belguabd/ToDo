@@ -4,6 +4,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TaskController;
+use Illuminate\Support\Facades\Broadcast;
+use App\Models\Task;
+use App\Events\TaskCreated;
+
 
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
@@ -19,3 +23,10 @@ Route::middleware('auth:api')->prefix('tasks')->group(function () {
     Route::put('/{id}', [TaskController::class, 'update']);
     Route::delete('/{id}', [TaskController::class, 'destroy']);
 });
+Route::get('/test', function () {
+    $task = Task::find(123);
+    event(new TaskCreated($task));
+    return 'Event fired';
+});
+
+Broadcast::routes(['middleware' => ['auth:api']]);

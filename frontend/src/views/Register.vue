@@ -7,7 +7,7 @@
 
     <!-- Registration Card -->
     <Card
-    class="relative mx-auto w-full max-w-2xl shadow-2xl border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm animate-fade-in-up"
+      class="relative mx-auto w-full max-w-2xl shadow-2xl border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm animate-fade-in-up"
     >
       <!-- Header -->
       <CardHeader class="text-center pb-6">
@@ -368,7 +368,7 @@ const handleRegister = async () => {
   if (form.value.image) {
     formData.append("image", form.value.image);
   }
-  
+
   try {
     authStore.error = null;
     // Pass FormData to the auth store's register action

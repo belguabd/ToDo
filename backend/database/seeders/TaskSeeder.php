@@ -1,39 +1,39 @@
+<?php
+
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Support\Carbon;
+use Faker\Factory as Faker;
 
 class TaskSeeder extends Seeder
 {
-public function run(): void
-{
-$user = User::first() ?? User::factory()->create(); // make sure at least one user exists
+    public function run(): void
+    {
+        $faker = Faker::create();
+        $users = User::all();
 
-Task::create([
-'user_id' => $user->id, // ✅ FIX
-'title' => 'Finish Laravel project',
-'description' => 'Complete all API endpoints and frontend integration',
-'status' => 'pending',
-'priority' => 'high',
-'due_date' => Carbon::now()->addDays(3),
-]);
+        if ($users->count() === 0) {
+            $this->command->warn('No users found. Please seed the users table first.');
+            return;
+        }
 
-Task::create([
-'user_id' => $user->id, // ✅ FIX
-'title' => 'Write documentation',
-'description' => 'Include setup and usage instructions',
-'status' => 'completed',
-'priority' => 'medium',
-'due_date' => Carbon::now()->addDays(5),
-]);
+        foreach ($users as $user) {
+            // Create between 3 and 7 tasks per user
+            $tasksCount = rand(3, 7);
 
-Task::create([
-'user_id' => $user->id, // ✅ FIX
-'title' => 'Team meeting',
-'description' => null,
-'status' => 'pending',
-'priority' => 'low',
-'due_date' => null,
-]);
-}
+            for ($i = 0; $i < $tasksCount; $i++) {
+                Task::create([
+                    'title' => $faker->sentence(4),
+                    'description' => $faker->paragraph(),
+                    'status' => $faker->randomElement(['pending', 'completed']),
+                    'priority' => $faker->randomElement(['low', 'medium', 'high']),
+                    // Use optional() helper to safely handle null due_date
+                    'due_date' => optional($faker->optional()->dateTimeBetween('now', '+1 month'))->format('Y-m-d'),
+                    'user_id' => $user->id,
+                ]);
+            }
+        }
+    }
 }

@@ -2,9 +2,11 @@
 namespace App\Http\Controllers;
 
 use App\Services\TaskService;
+use App\Http\Resources\TaskResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use App\Events\TaskCreated;
 
 class TaskController extends Controller
 {
@@ -21,7 +23,7 @@ class TaskController extends Controller
 
         return response()->json([
             'success' => true,
-            'tasks' => $tasks
+            'tasks' => TaskResource::collection($tasks)
         ]);
     }
 
@@ -38,7 +40,7 @@ class TaskController extends Controller
 
         return response()->json([
             'success' => true,
-            'task' => $task
+            'task' => new TaskResource($task)
         ]);
     }
 
@@ -50,6 +52,9 @@ class TaskController extends Controller
             'status' => 'nullable|in:pending,completed',
             'priority' => 'nullable|in:low,medium,high',
             'due_date' => 'nullable|date',
+            'completed' => 'nullable|boolean',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:50'
         ]);
 
         if ($validator->fails()) {
@@ -59,12 +64,21 @@ class TaskController extends Controller
             ], 422);
         }
 
-        $task = $this->taskService->createTask($request->all(), auth()->id());
+        $data = $request->all();
+        
+        // Handle completed field from frontend
+        if ($request->has('completed')) {
+            $data['status'] = $request->boolean('completed') ? 'completed' : 'pending';
+        }
 
+        $task = $this->taskService->createTask($data, auth()->id());
+        
+        
+        
         return response()->json([
             'success' => true,
             'message' => 'Task created successfully',
-            'task' => $task
+            'task' => new TaskResource($task)
         ], 201);
     }
 
@@ -76,6 +90,9 @@ class TaskController extends Controller
             'status' => 'nullable|in:pending,completed',
             'priority' => 'nullable|in:low,medium,high',
             'due_date' => 'nullable|date',
+            'completed' => 'nullable|boolean',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:50'
         ]);
 
         if ($validator->fails()) {
@@ -85,7 +102,14 @@ class TaskController extends Controller
             ], 422);
         }
 
-        $task = $this->taskService->updateTask($id, $request->all(), auth()->id());
+        $data = $request->all();
+        
+        // Handle completed field from frontend
+        if ($request->has('completed')) {
+            $data['status'] = $request->boolean('completed') ? 'completed' : 'pending';
+        }
+
+        $task = $this->taskService->updateTask($id, $data, auth()->id());
 
         if (!$task) {
             return response()->json([
@@ -97,7 +121,7 @@ class TaskController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Task updated successfully',
-            'task' => $task
+            'task' => new TaskResource($task)
         ]);
     }
 
