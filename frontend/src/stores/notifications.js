@@ -5,26 +5,35 @@ export const useNotificationsStore = defineStore('notifications', {
     notifications: [],
   }),
 
+  getters: {
+    unreadCount: (state) => state.notifications.filter(n => !n.read).length,
+  },
+
   actions: {
     addNotification(notification) {
       const id = Date.now()
-      this.notifications.push({
+      const newNotification = {
         id,
         type: 'success',
-        duration: 5000,
+        read: false,
+        createdAt: Date.now(),
         ...notification,
-      })
+      }
 
-      // Auto remove after duration
-      setTimeout(() => {
-        this.removeNotification(id)
-      }, notification.duration || 5000)
-
+      // Add to beginning (newest first)
+      this.notifications.unshift(newNotification)
       return id
     },
 
     removeNotification(id) {
       this.notifications = this.notifications.filter(n => n.id !== id)
+    },
+
+    markAsRead(id) {
+      const notification = this.notifications.find(n => n.id === id)
+      if (notification) {
+        notification.read = true
+      }
     },
 
     success(message, options = {}) {

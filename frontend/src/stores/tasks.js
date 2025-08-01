@@ -9,7 +9,6 @@ export const useTasksStore = defineStore('tasks', {
   }),
 
   getters: {
-    // Fixed: Check 'completed' property instead of 'status'
     completedTasks: (state) => state.tasks.filter(task => task.completed === true),
     pendingTasks: (state) => state.tasks.filter(task => task.completed === false || task.completed === null),
     tasksCount: (state) => state.tasks.length,

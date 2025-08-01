@@ -24,7 +24,7 @@ export const useAuthStore = defineStore('auth', {
 
         async initAuth() {
             console.log("user : ", this.user);
-            if (this.initialized) return // Prevent multiple initializations
+            if (this.initialized) return 
 
             this.loading = true
             console.log('Initializing authentication...')

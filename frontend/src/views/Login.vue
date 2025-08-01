@@ -58,12 +58,12 @@
                 class="text-sm font-medium text-slate-700 dark:text-slate-300"
                 >Password</Label
               >
-              <router-link
+              <!-- <router-link
                 to="/forgot-password"
                 class="text-xs text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors underline-offset-4 hover:underline"
               >
                 Forgot password?
-              </router-link>
+              </router-link> -->
             </div>
             <div class="relative group">
               <Lock
