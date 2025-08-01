@@ -42,13 +42,7 @@ const routes = [
     component: () => import('@/views/EditTask.vue'),
     meta: { requiresAuth: true },
     props: true
-  },
-  {
-    path: '/tasks/:id',
-    name: 'TaskDetail',
-    component: () => import('@/views/TaskDetail.vue'),
-    meta: { requiresAuth: true }
-  },
+  }
   {
     path: '/notifications',
     name: 'Notifications',

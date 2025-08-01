@@ -1,19 +1,17 @@
 <template>
   <div id="app" class="min-h-screen bg-gray-50">
-    <!-- Always show NavBar -->
     <NavBar v-if="authStore.isAuthenticated" />
 
-    <!-- Always show content -->
     <main class="pt-20 px-6 pb-6">
       <div class="max-w-7xl mx-auto">
         <RouterView />
       </div>
     </main>
 
-    <!-- ADD THIS: Notification Container -->
+    
     <NotificationContainer />
 
-    <!-- Loading Overlay -->
+    
     <div
       v-if="authStore.loading"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"

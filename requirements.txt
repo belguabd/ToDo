@@ -1,9 +1,0 @@
-sudo apt update
-sudo apt install php php-cli php-mbstring php-xml php-bcmath php-curl unzip curl git -y
-
-
-curl -sS https://getcomposer.org/installer | php
-sudo mv composer.phar /usr/local/bin/composer
-composer --version
-
-
